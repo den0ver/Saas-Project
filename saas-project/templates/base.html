@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}CRM SaaS{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <a href="#" class="sidebar__logo">
+            <div class="sidebar__logo-icon">C</div>
+            <span class="sidebar__logo-text">CRM SaaS</span>
+        </a>
+
+        <nav class="sidebar__nav">
+            <a href="#" class="sidebar__item active">Dashboard</a>
+            <a href="#" class="sidebar__item">Customers</a>
+            <a href="#" class="sidebar__item">Bookings</a>
+            <a href="#" class="sidebar__item">Services</a>
+            <a href="#" class="sidebar__item">Tasks</a>
+        </nav>
+    </aside>
+
+    <div class="page-wrapper">
+
+        <header class="navbar">
+            <div class="navbar__breadcrumb">
+                <span class="navbar__breadcrumb-item active">
+                    {% block page_name %}Dashboard{% endblock %}
+                </span>
+            </div>
+        </header>
+
+        <main class="page-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>
