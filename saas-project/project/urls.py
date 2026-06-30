@@ -10,6 +10,5 @@ urlpatterns = [
     path('services/', include('apps.services.urls')),
     path('bookings', include('apps.bookings.urls')),
     path('tasks/', include('apps.tasks.urls')),
-    path('dashboard/', include('apps.dashboard.urls')),
     path('api/', include('apps.api.urls')),
 ]

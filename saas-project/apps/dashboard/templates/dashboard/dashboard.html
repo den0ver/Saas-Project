@@ -12,7 +12,7 @@
 <!-- Page Header -->
 <div class="page-header">
   <div class="page-header__left">
-    <h1 class="page-title">Добро пожаловать, {{ request.user.first_name }} 👋</h1>
+    <h1 class="page-title">Добро пожаловать, {{ request.user.first_name }}!</h1>
     <p class="page-subtitle">Вот что происходит сегодня в вашем бизнесе</p>
   </div>
   <div class="page-header__actions">
@@ -58,12 +58,12 @@
       </div>
       <div class="stat-card__trend stat-card__trend--up">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-        +12%
+        +0%
       </div>
     </div>
-    <div class="stat-card__value">{{ stats.bookings_today|default:"24" }}</div>
+    <div class="stat-card__value">{{ stats.bookings_today|default:"0" }}</div>
     <div class="stat-card__label">Записей сегодня</div>
-    <div class="stat-card__meta">{{ stats.bookings_pending|default:"3" }} ожидают подтверждения</div>
+    <div class="stat-card__meta">{{ stats.bookings_pending|default:"0" }} ожидают подтверждения</div>
   </div>
 
   <div class="stat-card">
@@ -73,12 +73,12 @@
       </div>
       <div class="stat-card__trend stat-card__trend--up">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-        +8.3%
+        +0%
       </div>
     </div>
-    <div class="stat-card__value">{{ stats.revenue|default:"€ 8400" }}</div>
+    <div class="stat-card__value">{{ stats.revenue|default:"€ 0" }}</div>
     <div class="stat-card__label">Выручка за месяц</div>
-    <div class="stat-card__meta">Прошлый месяц: € 7780</div>
+    <div class="stat-card__meta">Прошлый месяц: € 0</div>
   </div>
 
   <div class="stat-card">
@@ -88,12 +88,12 @@
       </div>
       <div class="stat-card__trend stat-card__trend--up">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-        +24
+        +0
       </div>
     </div>
-    <div class="stat-card__value">{{ stats.total_customers|default:"248" }}</div>
+    <div class="stat-card__value">{{ stats.total_customers|default:"0" }}</div>
     <div class="stat-card__label">Всего клиентов</div>
-    <div class="stat-card__meta">+24 за этот месяц</div>
+    <div class="stat-card__meta">+0 за этот месяц</div>
   </div>
 
   <div class="stat-card">
@@ -103,12 +103,12 @@
       </div>
       <div class="stat-card__trend stat-card__trend--down">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 9 12 15 6 9"/></svg>
-        -2
+        -0
       </div>
     </div>
-    <div class="stat-card__value">{{ stats.tasks_open|default:"5" }}</div>
+    <div class="stat-card__value">{{ stats.tasks_open|default:"0" }}</div>
     <div class="stat-card__label">Открытых задач</div>
-    <div class="stat-card__meta">2 просрочены</div>
+    <div class="stat-card__meta">0 просрочены</div>
   </div>
 
 </div>

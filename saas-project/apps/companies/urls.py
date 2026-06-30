@@ -6,5 +6,5 @@ app_name = "companies"
 
 
 urlpatterns = [
-    
+    path('create/', views.create_company, name="create"),
 ] 

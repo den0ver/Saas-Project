@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from .forms import LoginForm, RegisterForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from apps.companies.models import Company
 
 
 def user_register(request):
@@ -26,10 +27,16 @@ def user_login(request):
         if form.is_valid():
             cd = form.cleaned_data
             user = authenticate(username=cd['username'], password=cd['password'])
-            if user.is_active and user is not None:
+            if user is not None and user.is_active:
                 login(request, user)
-                #messages.success(request, "Successfully authenticated!")
-                return redirect('dashboard:dashboard')
+                companies = Company.objects.filter(owner=user)
+                if companies.count() == 0:
+                    return redirect('companies:create')
+                elif companies.count() == 1:
+                    #messages.success(request, "Successfully authenticated!")
+                    return redirect('dashboard:dashboard')
+                else:
+                    return redirect('companies:list')
             else:
                 pass
                 #messages.error(request, "Invalid login.")

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'apps.tasks.apps.TasksConfig',
     'apps.dashboard.apps.DashboardConfig',
     'apps.api.apps.ApiConfig',
+    'apps.employees.apps.EmployeesConfig',
+    'apps.customers.apps.CustomersConfig',
     #Django apps
     'django.contrib.admin',
     'django.contrib.auth',
