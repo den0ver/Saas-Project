@@ -18,10 +18,10 @@
         </a>
 
         <nav class="sidebar__nav">
-            <a href="#" class="sidebar__item active">Dashboard</a>
+            <a href="{% url 'dashboard:dashboard' %}" class="sidebar__item active">Dashboard</a>
             <a href="#" class="sidebar__item">Customers</a>
             <a href="#" class="sidebar__item">Bookings</a>
-            <a href="#" class="sidebar__item">Services</a>
+            <a href="{% url 'services:list_services' %}" class="sidebar__item">Services</a>
             <a href="#" class="sidebar__item">Tasks</a>
         </nav>
     </aside>

@@ -6,5 +6,6 @@ app_name = "services"
 
 
 urlpatterns = [
-    
+    path('', views.list_services, name='list_services'),
+    path('create/', views.create_service, name='create_service'),
 ] 

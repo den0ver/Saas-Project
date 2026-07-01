@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Услуги{% endblock %}
+{% block page_name %}Услуги{% endblock %}
+{% block meta_description %}CRM — список услуг{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Услуги</h1>
+    <p class="page-subtitle">Все услуги вашего бизнеса</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn btn-primary" onclick="document.getElementById('createServiceModal').classList.add('open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Новая услуга
+    </button>
+  </div>
+</div>
+
+
+<!-- Services List -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Список услуг</div>
+      <div class="card-subtitle">{{ services|length|default:"0" }} услуг</div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Услуга</th>
+          <th>Длительность</th>
+          <th>Цена</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for service in services %}
+        <tr>
+          <td>
+            <div class="table-cell-user">
+              <div class="stat-card__icon stat-card__icon--brand" style="width:32px; height:32px; border-radius: var(--radius-sm);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div>
+                <div class="table-cell-user__name">{{ service.name }}</div>
+                {% if service.description %}
+                  <div class="table-cell-user__email">{{ service.description|truncatechars:40 }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td>{{ service.time|default:"—" }} мин</td>
+          <td style="font-weight: var(--fw-semibold); color: var(--text-primary);">€ {{ service.price|default:"0" }}</td>
+          <td>
+            {% if service.is_active %}
+              <span class="badge badge-success">Активна</span>
+            {% else %}
+              <span class="badge badge-neutral">Отключена</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-actions">
+              <a href="#" class="btn btn-ghost btn-icon btn-sm" title="Открыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="empty-state" style="padding: var(--space-10);">
+              <div class="empty-state__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div class="empty-state__title">Нет услуг</div>
+              <div class="empty-state__description">Добавьте первую услугу, чтобы клиенты могли записываться на неё</div>
+              <button class="btn btn-primary" onclick="document.getElementById('createServiceModal').classList.add('open')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Новая услуга
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- Create Service Modal -->
+<div class="modal-overlay" id="createServiceModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title">Новая услуга</div>
+      <button class="modal__close" onclick="document.getElementById('createServiceModal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form action="{% url 'services:create_service' %}" method="post">
+    {% csrf_token %}
+    <div class="modal__body">
+        <div class="form-group">
+            <label class="form-label form-label-required">
+                {{ form.name.label }}
+            </label>
+            {{ form.name }}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label form-label-required">
+                    {{ form.time.label }}
+                </label>
+                {{ form.time }}
+            </div>
+            <div class="form-group">
+                <label class="form-label form-label-required">
+                    {{ form.price.label }}
+                </label>
+                {{ form.price }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                {{ form.description.label }}
+            </label>
+            {{ form.description }}
+        </div>
+    </div>
+    <div class="modal__footer">
+        <button type="submit" class="btn btn-primary">
+            Создать услугу
+        </button>
+    </div>
+</form>
+  </div>
+</div>
+
+{% endblock %}

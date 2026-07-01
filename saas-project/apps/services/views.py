@@ -1,12 +1,43 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Service
+from apps.companies.models import Company
 from .forms import CreateServiceForm
+from django.contrib.auth.decorators import login_required
+from django.utils.text import slugify
 
 
+@login_required
+def list_services(request):
+    company = Company.objects.filter(owner=request.user).first()
+
+    if not company:
+        return redirect('companies:create')
+
+    services = Service.objects.filter(company=company)
+    form = CreateServiceForm()
+
+    context = {'form': form, 'services': services}
+    return render(request, 'services/list_services.html', context)
+
+
+@login_required
 def create_service(request):
+    company = Company.objects.filter(owner=request.user).first()
+
+    if not company:
+        return redirect('companies:create')
+
     if request.method == "POST":
         form = CreateServiceForm(request.POST)
+
+        if form.is_valid():
+            service = form.save(commit=False)
+            service.company = company
+            service.slug = slugify(service.name)
+            service.save()
+            return redirect('services:list_services')
     else:
         form = CreateServiceForm()
     context = {'form': form}
-    return render(request, '', context)
+    return render(request, 'services/list_services.html', context)
+
