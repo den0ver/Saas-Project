@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Сотрудники{% endblock %}
+{% block page_name %}Сотрудники{% endblock %}
+{% block meta_description %}CRM — список сотрудников{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Сотрудники</h1>
+    <p class="page-subtitle">Все сотрудники вашего бизнеса</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'employees:create_employee' %}" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Новый сотрудник
+    </a>
+  </div>
+</div>
+
+
+<!-- Employees List -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Список сотрудников</div>
+      <div class="card-subtitle">{{ employees|length|default:"0" }} сотрудников</div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Сотрудник</th>
+          <th>Должность</th>
+          <th>Телефон</th>
+          <th>Email</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for employee in employees %}
+        <tr>
+          <td>
+            <a href="{% url 'employees:detail_employee' employee.pk %}" style="text-decoration: none;">
+              <div class="table-cell-user">
+                <div class="table-avatar">
+                  {% if employee.avatar %}
+                    <img src="{{ employee.avatar.url }}" alt="{{ employee.get_full_name }}">
+                  {% else %}
+                    {{ employee.first_name.0 }}{{ employee.last_name.0 }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="table-cell-user__name">{{ employee.get_full_name }}</div>
+                  {% if employee.position %}
+                    <div class="table-cell-user__email">{{ employee.position }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </td>
+          <td>{{ employee.position|default:"—" }}</td>
+          <td>{{ employee.phone|default:"—" }}</td>
+          <td>{{ employee.email|default:"—" }}</td>
+          <td>
+            {% if employee.is_active %}
+              <span class="badge badge-success">Активен</span>
+            {% else %}
+              <span class="badge badge-neutral">Отключён</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-actions">
+              <a href="{% url 'employees:detail_employee' employee.pk %}" class="btn btn-ghost btn-icon btn-sm" title="Открыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">
+            <div class="empty-state" style="padding: var(--space-10);">
+              <div class="empty-state__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="empty-state__title">Нет сотрудников</div>
+              <div class="empty-state__description">Добавьте первого сотрудника, чтобы назначать его на записи</div>
+              <a href="{% url 'employees:create_employee' %}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Новый сотрудник
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

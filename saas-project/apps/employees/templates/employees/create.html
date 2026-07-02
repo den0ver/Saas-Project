@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Новый сотрудник{% endblock %}
+{% block page_name %}Новый сотрудник{% endblock %}
+{% block meta_description %}CRM — создание сотрудника{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Новый сотрудник</h1>
+    <p class="page-subtitle">Добавьте нового сотрудника в вашу команду</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'employees:list_employees' %}" class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Назад к списку
+    </a>
+  </div>
+</div>
+
+
+<!-- Create Employee Form -->
+<div class="card" style="max-width: 720px;">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Данные сотрудника</div>
+      <div class="card-subtitle">Заполните основную информацию</div>
+    </div>
+  </div>
+
+  <form action="{% url 'employees:create_employee' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-body">
+      <div class="form-section">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required">
+              {{ form.first_name.label }}
+            </label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.first_name.errors|first }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-required">
+              {{ form.last_name.label }}
+            </label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.last_name.errors|first }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            {{ form.position.label }}
+          </label>
+          {{ form.position }}
+          <div class="form-hint">Например: мастер маникюра, парикмахер, администратор</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required">
+              {{ form.phone.label }}
+            </label>
+            {{ form.phone }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              {{ form.email.label }}
+            </label>
+            {{ form.email }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            {{ form.avatar.label }}
+          </label>
+          {{ form.avatar }}
+          <div class="form-hint">Фото сотрудника (необязательно)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            {{ form.description.label }}
+          </label>
+          {{ form.description }}
+        </div>
+
+        <div class="form-check">
+          {{ form.is_active }}
+          <label class="form-check__label" for="{{ form.is_active.id_for_label }}">
+            Сотрудник активен и доступен для записи
+          </label>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal__footer" style="border-radius: 0 0 var(--radius-lg) var(--radius-lg);">
+      <a href="{% url 'employees:list_employees' %}" class="btn btn-secondary">Отмена</a>
+      <button type="submit" class="btn btn-primary">
+        Создать сотрудника
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
