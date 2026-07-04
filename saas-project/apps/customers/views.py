@@ -4,10 +4,12 @@ from .models import Customer
 from apps.companies.models import Company
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from apps.companies.utils import get_user_company
+
 
 @login_required
 def list_customers(request):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
 
     if not company:
         return redirect('companies:create')
@@ -20,7 +22,7 @@ def list_customers(request):
 
 @login_required
 def create_customer(request):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
 
     if not company:
         return redirect('companies:create')
@@ -40,7 +42,7 @@ def create_customer(request):
 
 @login_required
 def detail_customer(request, id):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
     
     if not company:
         return redirect('companies:create')
@@ -52,7 +54,7 @@ def detail_customer(request, id):
 
 @login_required
 def edit_customer(request, id):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
     customer = get_object_or_404(Customer, id=id, company=company)
 
     if request.method == "POST":
@@ -69,7 +71,8 @@ def edit_customer(request, id):
 @require_POST
 @login_required
 def delete_customer(request, id):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
     customer = get_object_or_404(Customer, id=id, company=company)
+    
     customer.delete()
     return redirect('customers:list')

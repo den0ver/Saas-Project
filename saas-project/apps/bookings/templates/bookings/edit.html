@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Редактировать запись{% endblock %}
+{% block page_name %}Редактировать запись{% endblock %}
+{% block meta_description %}CRM — редактирование записи{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{% url 'bookings:list' %}" class="navbar__breadcrumb-item">Записи</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<a href="{% url 'bookings:detail' booking.id %}" class="navbar__breadcrumb-item">{{ booking.customer.get_full_name }}</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<span class="navbar__breadcrumb-item active">Редактировать</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Редактировать запись</h1>
+    <p class="page-subtitle">Запись клиента {{ booking.customer.get_full_name }}</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-secondary">Отмена</a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <div class="card" style="max-width: 720px;">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Информация о записи</div>
+        <div class="card-subtitle">Клиент, услуга, сотрудник и время</div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="form-section">
+
+        <!-- Customer & Service -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.customer.id_for_label }}">Клиент</label>
+            <div class="select-wrapper">
+              {{ form.customer }}
+            </div>
+            {% if form.customer.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.customer.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.service.id_for_label }}">Услуга</label>
+            <div class="select-wrapper">
+              {{ form.service }}
+            </div>
+            {% if form.service.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.service.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Employee -->
+        <div class="form-group">
+          <label class="form-label form-label-required" for="{{ form.employee.id_for_label }}">Сотрудник</label>
+          <div class="select-wrapper">
+            {{ form.employee }}
+          </div>
+          {% if form.employee.errors %}
+            <div class="form-error">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {{ form.employee.errors.0 }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Date & Time -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.date.id_for_label }}">Дата</label>
+            {{ form.date }}
+            {% if form.date.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.date.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.time.id_for_label }}">Время</label>
+            {{ form.time }}
+            {% if form.time.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.time.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label class="form-label" for="{{ form.status.id_for_label }}">Статус</label>
+          <div class="select-wrapper">
+            {{ form.status }}
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label" for="{{ form.notes.id_for_label }}">Заметки</label>
+          {{ form.notes }}
+          <div class="form-hint">Дополнительная информация о записи</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-footer flex justify-between gap-3">
+      <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteBookingModal').classList.add('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Удалить запись
+      </button>
+      <div class="flex gap-3">
+        <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-secondary">Отмена</a>
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Сохранить изменения
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteBookingModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title">Удалить запись</div>
+      <button class="modal__close" onclick="document.getElementById('deleteBookingModal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="alert alert--danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>Вы уверены, что хотите удалить эту запись? Это действие необратимо.</div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteBookingModal').classList.remove('open')">Отмена</button>
+      <form method="post" action="{% url 'bookings:delete' booking.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

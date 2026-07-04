@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Записи{% endblock %}
+{% block page_name %}Записи{% endblock %}
+{% block meta_description %}CRM — список записей{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Записи</h1>
+    <p class="page-subtitle">Все записи клиентов вашего бизнеса</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'bookings:create' %}" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Новая запись
+    </a>
+  </div>
+</div>
+
+
+<!-- Bookings List -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Список записей</div>
+      <div class="card-subtitle">{{ bookings|length|default:"0" }} записей</div>
+    </div>
+    <div class="filter-bar">
+      <form method="get" class="search-input-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" class="input" placeholder="Поиск по клиенту" value="{{ request.GET.q }}">
+      </form>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Клиент</th>
+          <th>Услуга</th>
+          <th>Сотрудник</th>
+          <th>Дата и время</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for booking in bookings %}
+        <tr>
+          <td>
+            <a href="{% url 'bookings:detail' booking.id %}" style="text-decoration: none;">
+              <div class="table-cell-user">
+                <div class="table-avatar">
+                  {% if booking.customer.avatar %}
+                    <img src="{{ booking.customer.avatar.url }}" alt="{{ booking.customer.get_full_name }}">
+                  {% else %}
+                    {{ booking.customer.first_name.0 }}{{ booking.customer.last_name.0 }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="table-cell-user__name">{{ booking.customer.first_name }} {{ booking.customer.last_name }}</div>
+                  {% if booking.customer.phone %}
+                    <div class="table-cell-user__email">{{ booking.customer.phone }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </td>
+          <td>{{ booking.service.name|default:"—" }}</td>
+          <td>
+            {{ booking.employee.first_name|default:"—" }}
+            {{ booking.employee.last_name|default:"—" }}
+          </td>
+          <td>{{ booking.date|date:"d.m.Y" }} · {{ booking.time|time:"H:i" }}</td>
+          <td>
+            {% if booking.status == "confirmed" %}
+              <span class="badge badge-success">Подтверждена</span>
+            {% elif booking.status == "pending" %}
+              <span class="badge badge-warning">Ожидает</span>
+            {% elif booking.status == "cancelled" %}
+              <span class="badge badge-neutral">Отменена</span>
+            {% else %}
+              <span class="badge badge-neutral">{{ booking.status }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-actions">
+              <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-ghost btn-icon btn-sm" title="Открыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">
+            <div class="empty-state" style="padding: var(--space-10);">
+              <div class="empty-state__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="empty-state__title">Нет записей</div>
+              <div class="empty-state__description">Создайте первую запись, чтобы начать вести расписание</div>
+              <a href="{% url 'bookings:create' %}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Новая запись
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="pagination">
+    <div class="pagination__info">
+      Показано {{ page_obj.start_index }}–{{ page_obj.end_index }} из {{ paginator.count }}
+    </div>
+    <div class="pagination__controls">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+      {% else %}
+        <button class="page-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+      {% endif %}
+
+      {% for num in paginator.page_range %}
+        {% if num == page_obj.number %}
+          <button class="page-btn active">{{ num }}</button>
+        {% else %}
+          <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      {% else %}
+        <button class="page-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

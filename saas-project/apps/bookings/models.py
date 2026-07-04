@@ -10,7 +10,8 @@ class Booking(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name="bookings")
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="bookings")
 
-    date_time = models.DateTimeField()
+    date = models.DateField()
+    time = models.TimeField()
     created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
@@ -20,7 +21,7 @@ class Booking(models.Model):
     ], default='pending')
 
     class Meta:
-        ordering = ['-date_time']
+        ordering = ['-date']
 
     def __str__(self):
         return f"Booking Number: {self.id}"

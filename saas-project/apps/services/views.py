@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Service
-from apps.companies.models import Company
+from apps.companies.utils import get_user_company
 from .forms import CreateServiceForm
 from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 @login_required
 def list_services(request):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
 
     if not company:
         return redirect('companies:create')
@@ -22,7 +22,7 @@ def list_services(request):
 
 @login_required
 def create_service(request):
-    company = Company.objects.filter(owner=request.user).first()
+    company = get_user_company(request.user)
 
     if not company:
         return redirect('companies:create')
