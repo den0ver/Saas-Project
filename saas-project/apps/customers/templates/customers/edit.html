@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Редактировать клиента{% endblock %}
+{% block page_name %}Редактировать клиента{% endblock %}
+{% block meta_description %}CRM — редактирование клиента{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{% url 'customers:list' %}" class="navbar__breadcrumb-item">Клиенты</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<a href="{% url 'customers:detail' customer.id %}" class="navbar__breadcrumb-item">{{ customer.get_full_name }}</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<span class="navbar__breadcrumb-item active">Редактировать</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Редактировать клиента</h1>
+    <p class="page-subtitle">Обновите информацию о клиенте {{ customer.get_full_name }}</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'customers:detail' customer.id %}" class="btn btn-secondary">Отмена</a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+
+  <div class="card" style="max-width: 720px;">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Информация о клиенте</div>
+        <div class="card-subtitle">Основные и контактные данные</div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="form-section">
+
+        <!-- Avatar -->
+        <div class="flex items-center gap-4">
+          <div class="table-avatar" style="width: 64px; height: 64px; font-size: var(--text-lg);">
+            {% if customer.avatar %}
+              <img src="{{ customer.avatar.url }}" alt="{{ customer.get_full_name }}">
+            {% else %}
+              {{ customer.first_name.0 }}{{ customer.last_name.0 }}
+            {% endif %}
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label" for="{{ form.avatar.id_for_label }}">Фото клиента</label>
+            {{ form.avatar }}
+            <div class="form-hint">JPG или PNG, до 5 МБ. Оставьте пустым, чтобы не менять фото</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Name -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.first_name.id_for_label }}">Имя</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.first_name.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.last_name.id_for_label }}">Фамилия</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.last_name.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Contacts -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.phone.id_for_label }}">Телефон</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.phone.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.email.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Birthdate & Status -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
+            {{ form.birth_date }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Статус</label>
+            <div class="flex items-center gap-3" style="height: 38px;">
+              <label class="toggle">
+                {{ form.is_active }}
+                <span class="toggle__track"></span>
+              </label>
+              <span class="form-check__label">Активный клиент</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group">
+          <label class="form-label" for="{{ form.notes.id_for_label }}">Заметки</label>
+          {{ form.notes }}
+          <div class="form-hint">Видно только сотрудникам, клиент их не увидит</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-footer flex justify-between gap-3">
+      <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteCustomerModal').classList.add('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Удалить клиента
+      </button>
+      <div class="flex gap-3">
+        <a href="{% url 'customers:detail' customer.id %}" class="btn btn-secondary">Отмена</a>
+        <button type="submit" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Сохранить изменения
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteCustomerModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title">Удалить клиента</div>
+      <button class="modal__close" onclick="document.getElementById('deleteCustomerModal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <div class="alert alert--danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>Вы уверены, что хотите удалить клиента <strong>{{ customer.get_full_name }}</strong>? Это действие необратимо.</div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteCustomerModal').classList.remove('open')">Отмена</button>
+      <form method="post" action="{% url 'customers:delete' customer.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

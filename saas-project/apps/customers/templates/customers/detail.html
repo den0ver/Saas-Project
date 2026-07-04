@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ customer.get_full_name }}{% endblock %}
+{% block page_name %}{{ customer.get_full_name }}{% endblock %}
+{% block meta_description %}CRM — карточка клиента{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{% url 'customers:list' %}" class="navbar__breadcrumb-item">Клиенты</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<span class="navbar__breadcrumb-item active">{{ customer.get_full_name }}</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left flex items-center gap-4">
+    <div class="table-avatar" style="width: 56px; height: 56px; font-size: var(--text-lg);">
+      {% if customer.avatar %}
+        <img src="{{ customer.avatar.url }}" alt="{{ customer.get_full_name }}">
+      {% else %}
+        {{ customer.first_name.0 }}{{ customer.last_name.0 }}
+      {% endif %}
+    </div>
+    <div>
+      <h1 class="page-title">{{ customer.get_full_name }}</h1>
+      <p class="page-subtitle">
+        Клиент с {{ customer.created_at|date:"d.m.Y" }}
+        {% if customer.is_active %}
+          <span class="badge badge-success" style="margin-left: 6px;">Активен</span>
+        {% else %}
+          <span class="badge badge-neutral" style="margin-left: 6px;">Неактивен</span>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'customers:edit' customer.id %}" class="btn btn-secondary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Редактировать
+    </a>
+    <div class="dropdown">
+      <button class="btn btn-ghost btn-icon" onclick="this.nextElementSibling.classList.toggle('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+      </button>
+      <div class="dropdown__menu">
+        <a href="{% url 'customers:edit' customer.id %}" class="dropdown__item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Редактировать
+        </a>
+        <div class="dropdown__divider"></div>
+        <form method="post" action="{% url 'customers:delete' customer.id %}" onsubmit="return confirm('Удалить клиента {{ customer.get_full_name }}?');">
+          {% csrf_token %}
+          <button type="submit" class="dropdown__item dropdown__item--danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Удалить клиента
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid mb-6">
+  <div class="stat-card">
+    <div class="stat-card__header">
+      <div class="stat-card__icon stat-card__icon--brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card__value">{{ customer.total_visits|default:"0" }}</div>
+      <div class="stat-card__label">Всего визитов</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card__header">
+      <div class="stat-card__icon stat-card__icon--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card__value">{{ customer.total_spent|default:"0" }} ₽</div>
+      <div class="stat-card__label">Общая сумма</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card__header">
+      <div class="stat-card__icon stat-card__icon--yellow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card__value">{{ customer.last_visit|date:"d.m.Y"|default:"—" }}</div>
+      <div class="stat-card__label">Последний визит</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card__header">
+      <div class="stat-card__icon stat-card__icon--purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card__value">{{ customer.upcoming_visit|date:"d.m.Y"|default:"Нет записи" }}</div>
+      <div class="stat-card__label">Ближайшая запись</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main grid -->
+<div class="dashboard-grid dashboard-grid--2col">
+
+  <!-- Left column -->
+  <div>
+    <div class="tabs">
+      <a href="#" class="tab active">Обзор</a>
+      <a href="#" class="tab">Записи <span class="tab__count">{{ customer.bookings.count|default:"0" }}</span></a>
+      <a href="#" class="tab">История</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Контактная информация</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Телефон</div>
+            <div class="text-secondary">{{ customer.phone|default:"—" }}</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Email</div>
+            <div class="text-secondary">{{ customer.email|default:"—" }}</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Дата рождения</div>
+            <div class="text-secondary">{{ customer.birth_date|date:"d.m.Y"|default:"—" }}</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Добавлен</div>
+            <div class="text-secondary">{{ customer.created_at|date:"d.m.Y" }}</div>
+          </div>
+        </div>
+        {% if customer.notes %}
+        <div class="divider"></div>
+        <div class="form-group">
+          <div class="form-label">Заметки</div>
+          <p class="text-secondary">{{ customer.notes|linebreaksbr }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div>
+    <div class="upcoming-bookings mb-5">
+      <div class="card-header" style="border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+        <div class="card-title">Ближайшие записи</div>
+      </div>
+      {% for booking in customer.upcoming_bookings %}
+      <div class="upcoming-item">
+        <div class="upcoming-item__time">
+          <div class="upcoming-item__time-day">{{ booking.date|date:"D" }}</div>
+          <div class="upcoming-item__time-num">{{ booking.date|date:"d" }}</div>
+        </div>
+        <div class="upcoming-item__divider"></div>
+        <div class="upcoming-item__info">
+          <div class="upcoming-item__title">{{ booking.service_name }}</div>
+          <div class="upcoming-item__meta">{{ booking.time|date:"H:i" }} · {{ booking.employee.get_full_name }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding: var(--space-8) var(--space-5);">
+        <div class="empty-state__description" style="margin-bottom: 0;">Нет предстоящих записей</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

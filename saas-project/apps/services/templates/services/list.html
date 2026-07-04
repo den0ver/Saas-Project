@@ -16,10 +16,10 @@
     <p class="page-subtitle">Все услуги вашего бизнеса</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn btn-primary" onclick="document.getElementById('createServiceModal').classList.add('open')">
+    <a href="{% url 'services:create' %}" class="btn btn-primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Новая услуга
-    </button>
+    </a>
   </div>
 </div>
 
@@ -86,65 +86,16 @@
               </div>
               <div class="empty-state__title">Нет услуг</div>
               <div class="empty-state__description">Добавьте первую услугу, чтобы клиенты могли записываться на неё</div>
-              <button class="btn btn-primary" onclick="document.getElementById('createServiceModal').classList.add('open')">
+              <a href="{% url 'services:create' %}" class="btn btn-primary">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Новая услуга
-              </button>
+              </a>
             </div>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-  </div>
-</div>
-
-
-<!-- Create Service Modal -->
-<div class="modal-overlay" id="createServiceModal">
-  <div class="modal">
-    <div class="modal__header">
-      <div class="modal__title">Новая услуга</div>
-      <button class="modal__close" onclick="document.getElementById('createServiceModal').classList.remove('open')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <form action="{% url 'services:create_service' %}" method="post">
-    {% csrf_token %}
-    <div class="modal__body">
-        <div class="form-group">
-            <label class="form-label form-label-required">
-                {{ form.name.label }}
-            </label>
-            {{ form.name }}
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label form-label-required">
-                    {{ form.time.label }}
-                </label>
-                {{ form.time }}
-            </div>
-            <div class="form-group">
-                <label class="form-label form-label-required">
-                    {{ form.price.label }}
-                </label>
-                {{ form.price }}
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">
-                {{ form.description.label }}
-            </label>
-            {{ form.description }}
-        </div>
-    </div>
-    <div class="modal__footer">
-        <button type="submit" class="btn btn-primary">
-            Создать услугу
-        </button>
-    </div>
-</form>
   </div>
 </div>
 

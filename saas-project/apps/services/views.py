@@ -17,7 +17,7 @@ def list_services(request):
     form = CreateServiceForm()
 
     context = {'form': form, 'services': services}
-    return render(request, 'services/list_services.html', context)
+    return render(request, 'services/list.html', context)
 
 
 @login_required
@@ -39,5 +39,5 @@ def create_service(request):
     else:
         form = CreateServiceForm()
     context = {'form': form}
-    return render(request, 'services/list_services.html', context)
+    return render(request, 'services/create.html', context)
 

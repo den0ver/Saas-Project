@@ -10,6 +10,7 @@ class Customer(models.Model):
 
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=200)
+    is_active = models.BooleanField(default=True)
 
     created = models.DateTimeField(auto_now_add=True)
 

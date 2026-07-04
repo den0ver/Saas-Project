@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Клиенты{% endblock %}
+{% block page_name %}Клиенты{% endblock %}
+{% block meta_description %}CRM — список клиентов{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Клиенты</h1>
+    <p class="page-subtitle">Все клиенты вашего бизнеса</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'customers:create' %}" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Новый клиент
+    </a>
+  </div>
+</div>
+
+
+<!-- Customers List -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">Список клиентов</div>
+      <div class="card-subtitle">{{ customers|length|default:"0" }} клиентов</div>
+    </div>
+    <div class="filter-bar">
+      <form method="get" class="search-input-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" class="input" placeholder="Поиск по имени, телефону, email" value="{{ request.GET.q }}">
+      </form>
+    </div>
+  </div>
+
+  <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Клиент</th>
+          <th>Телефон</th>
+          <th>Email</th>
+          <th>Визитов</th>
+          <th>Последний визит</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td>
+            <a href="{% url 'customers:detail' customer.id %}" style="text-decoration: none;">
+              <div class="table-cell-user">
+                <div class="table-avatar">
+                  {% if customer.avatar %}
+                    <img src="{{ customer.avatar.url }}" alt="{{ customer.get_full_name }}">
+                  {% else %}
+                    {{ customer.first_name.0 }}{{ customer.last_name.0 }}
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="table-cell-user__name">{{ customer.get_full_name }}</div>
+                  {% if customer.email %}
+                    <div class="table-cell-user__email">{{ customer.email }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </td>
+          <td>{{ customer.phone|default:"—" }}</td>
+          <td>{{ customer.email|default:"—" }}</td>
+          <td>{{ customer.total_visits|default:"0" }}</td>
+          <td>{{ customer.last_visit|date:"d.m.Y"|default:"—" }}</td>
+          <td>
+            {% if customer.is_active %}
+              <span class="badge badge-success">Активен</span>
+            {% else %}
+              <span class="badge badge-neutral">Неактивен</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-actions">
+              <a href="{% url 'customers:detail' customer.id %}" class="btn btn-ghost btn-icon btn-sm" title="Открыть">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state" style="padding: var(--space-10);">
+              <div class="empty-state__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="empty-state__title">Нет клиентов</div>
+              <div class="empty-state__description">Добавьте первого клиента, чтобы создавать для него записи</div>
+              <a href="{% url 'customers:create' %}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Новый клиент
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="pagination">
+    <div class="pagination__info">
+      Показано {{ page_obj.start_index }}–{{ page_obj.end_index }} из {{ paginator.count }}
+    </div>
+    <div class="pagination__controls">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
+      {% else %}
+        <button class="page-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+      {% endif %}
+
+      {% for num in paginator.page_range %}
+        {% if num == page_obj.number %}
+          <button class="page-btn active">{{ num }}</button>
+        {% else %}
+          <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      {% else %}
+        <button class="page-btn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

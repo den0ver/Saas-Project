@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Новая услуга{% endblock %}
+{% block page_name %}Новая услуга{% endblock %}
+{% block meta_description %}CRM — добавление новой услуги{% endblock %}
+
+{% block breadcrumbs %}
+<a href="{% url 'services:list_services' %}" class="navbar__breadcrumb-item">Услуги</a>
+<span class="navbar__breadcrumb-sep">/</span>
+<span class="navbar__breadcrumb-item active">Новая услуга</span>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__left">
+    <h1 class="page-title">Новая услуга</h1>
+    <p class="page-subtitle">Заполните информацию, чтобы добавить услугу в каталог</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'services:list_services' %}" class="btn btn-secondary">Отмена</a>
+  </div>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="card" style="max-width: 720px;">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Информация об услуге</div>
+        <div class="card-subtitle">Название, длительность и стоимость</div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="form-section">
+
+        <!-- Icon preview -->
+        <div class="flex items-center gap-4">
+          <div class="stat-card__icon stat-card__icon--brand" style="width: 56px; height: 56px; border-radius: var(--radius-md);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 26px; height: 26px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="form-group flex-1">
+            <label class="form-label form-label-required" for="{{ form.name.id_for_label }}">Название услуги</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.name.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Duration & Price -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.time.id_for_label }}">Длительность (мин)</label>
+            {{ form.time }}
+            {% if form.time.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.time.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.price.id_for_label }}">Цена (€)</label>
+            {{ form.price }}
+            {% if form.price.errors %}
+              <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ form.price.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label class="form-label">Статус</label>
+          <div class="flex items-center gap-3">
+            <label class="toggle">
+              {{ form.is_active }}
+              <span class="toggle__track"></span>
+            </label>
+            <span class="form-check__label">Услуга активна и доступна для записи</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="{{ form.description.id_for_label }}">Описание</label>
+          {{ form.description }}
+          <div class="form-hint">Краткое описание услуги, которое увидят сотрудники</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-footer flex justify-end gap-3">
+      <a href="{% url 'services:list_services' %}" class="btn btn-secondary">Отмена</a>
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Сохранить услугу
+      </button>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

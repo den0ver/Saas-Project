@@ -12,4 +12,5 @@ urlpatterns = [
     path('tasks/', include('apps.tasks.urls')),
     path('employees/', include('apps.employees.urls')),
     path('api/', include('apps.api.urls')),
+    path('customers/', include('apps.customers.urls')),
 ]
