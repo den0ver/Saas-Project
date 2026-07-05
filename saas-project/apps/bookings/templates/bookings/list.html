@@ -44,6 +44,7 @@
       <thead>
         <tr>
           <th>Клиент</th>
+          <th>Телефон</th>
           <th>Услуга</th>
           <th>Сотрудник</th>
           <th>Дата и время</th>
@@ -66,13 +67,11 @@
                 </div>
                 <div>
                   <div class="table-cell-user__name">{{ booking.customer.first_name }} {{ booking.customer.last_name }}</div>
-                  {% if booking.customer.phone %}
-                    <div class="table-cell-user__email">{{ booking.customer.phone }}</div>
-                  {% endif %}
                 </div>
               </div>
             </a>
           </td>
+          <td>{{ booking.customer.phone|default:"—" }}</td>
           <td>{{ booking.service.name|default:"—" }}</td>
           <td>
             {{ booking.employee.first_name|default:"—" }}

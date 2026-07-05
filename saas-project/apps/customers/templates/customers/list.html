@@ -66,10 +66,7 @@
                   {% endif %}
                 </div>
                 <div>
-                  <div class="table-cell-user__name">{{ customer.get_full_name }}</div>
-                  {% if customer.email %}
-                    <div class="table-cell-user__email">{{ customer.email }}</div>
-                  {% endif %}
+                  <div class="table-cell-user__name">{{ customer.first_name }} {{ customer.last_name }}</div>
                 </div>
               </div>
             </a>

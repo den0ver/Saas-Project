@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ employee.get_full_name }}{% endblock %}
-{% block page_name %}{{ employee.get_full_name }}{% endblock %}
+{% block title %}{{ employee.first_name }} {{ employee.last_name }}{% endblock %}
+{% block page_name %}{{ employee.first_name }} {{ employee.last_name }}{% endblock %}
 {% block meta_description %}CRM — карточка сотрудника{% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
@@ -12,11 +12,11 @@
 <!-- Page Header -->
 <div class="page-header">
   <div class="page-header__left">
-    <h1 class="page-title">{{ employee.get_full_name }}</h1>
+    <h1 class="page-title">{{ employee.first_name }} {{ employee.last_name }}</h1>
     <p class="page-subtitle">{{ employee.position|default:"Сотрудник" }}</p>
   </div>
   <div class="page-header__actions">
-    <a href="{% url 'employees:list_employees' %}" class="btn btn-secondary">
+    <a href="{% url 'employees:list' %}" class="btn btn-secondary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
       Назад к списку
     </a>
@@ -42,10 +42,10 @@
       </div>
       <div>
         <div style="font-size: var(--text-lg); font-weight: var(--fw-semibold); color: var(--text-primary);">
-          {{ employee.get_full_name }}
+          {{ employee.first_name }} {{ employee.last_name }}
         </div>
         <div style="font-size: var(--text-sm); color: var(--text-tertiary); margin-top: 2px;">
-          {{ employee.position|default:"—" }}
+          {{ employee.position|default:"Позиция" }}
         </div>
       </div>
 

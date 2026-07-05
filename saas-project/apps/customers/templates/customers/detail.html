@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ customer.get_full_name }}{% endblock %}
-{% block page_name %}{{ customer.get_full_name }}{% endblock %}
+{% block title %}{{ customer.first_name }} {{ customer.last_name }}{% endblock %}
+{% block page_name %}{{ customer.first_name }} {{ customer.last_name }}{% endblock %}
 {% block meta_description %}CRM — карточка клиента{% endblock %}
 
 {% block breadcrumbs %}
 <a href="{% url 'customers:list' %}" class="navbar__breadcrumb-item">Клиенты</a>
 <span class="navbar__breadcrumb-sep">/</span>
-<span class="navbar__breadcrumb-item active">{{ customer.get_full_name }}</span>
+<span class="navbar__breadcrumb-item active">{{ customer.first_name }} {{ customer.last_name }}</span>
 {% endblock %}
 
 {% block content %}
@@ -18,15 +18,14 @@
   <div class="page-header__left flex items-center gap-4">
     <div class="table-avatar" style="width: 56px; height: 56px; font-size: var(--text-lg);">
       {% if customer.avatar %}
-        <img src="{{ customer.avatar.url }}" alt="{{ customer.get_full_name }}">
+        <img src="{{ customer.avatar.url }}" alt="{{ customer.first_name }} {{ customer.last_name }}">
       {% else %}
         {{ customer.first_name.0 }}{{ customer.last_name.0 }}
       {% endif %}
     </div>
     <div>
-      <h1 class="page-title">{{ customer.get_full_name }}</h1>
+      <h1 class="page-title">{{ customer.first_name }} {{ customer.last_name }}</h1>
       <p class="page-subtitle">
-        Клиент с {{ customer.created_at|date:"d.m.Y" }}
         {% if customer.is_active %}
           <span class="badge badge-success" style="margin-left: 6px;">Активен</span>
         {% else %}
@@ -145,10 +144,6 @@
           <div class="form-group">
             <div class="form-label">Дата рождения</div>
             <div class="text-secondary">{{ customer.birth_date|date:"d.m.Y"|default:"—" }}</div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">Добавлен</div>
-            <div class="text-secondary">{{ customer.created_at|date:"d.m.Y" }}</div>
           </div>
         </div>
         {% if customer.notes %}
