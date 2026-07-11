@@ -5,13 +5,14 @@ from apps.employees.models import Employee
 from apps.customers.models import Customer
 
 class Booking(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bookings")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="bookings", blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="bookings")
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name="bookings")
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="bookings")
 
-    date = models.DateField()
-    time = models.TimeField()
+
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
@@ -21,7 +22,12 @@ class Booking(models.Model):
     ], default='pending')
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['-start_time']
+        indexes = [
+            models.Index(fields=['start_time']),
+            models.Index(fields=['employee']),
+            models.Index(fields=['company']),
+        ]
 
     def __str__(self):
         return f"Booking Number: {self.id}"

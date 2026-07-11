@@ -20,11 +20,11 @@
     <p class="page-subtitle">Заполните информацию, чтобы добавить услугу в каталог</p>
   </div>
   <div class="page-header__actions">
-    <a href="{% url 'services:list_services' %}" class="btn btn-secondary">Отмена</a>
+    <a href="{% url 'services:list' %}" class="btn btn-secondary">Отмена</a>
   </div>
 </div>
 
-<form method="post" novalidate>
+<form action="{% url 'services:create' %}" method="post">
   {% csrf_token %}
 
   <div class="card" style="max-width: 720px;">
@@ -61,8 +61,8 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label form-label-required" for="{{ form.time.id_for_label }}">Длительность (мин)</label>
-            {{ form.time }}
-            {% if form.time.errors %}
+            {{ form.duration }}
+            {% if form.duration.errors %}
               <div class="form-error">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 {{ form.time.errors.0 }}
@@ -104,7 +104,7 @@
     </div>
 
     <div class="card-footer flex justify-end gap-3">
-      <a href="{% url 'services:list_services' %}" class="btn btn-secondary">Отмена</a>
+      <a href="{% url 'services:list' %}" class="btn btn-secondary">Отмена</a>
       <button type="submit" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
         Сохранить услугу

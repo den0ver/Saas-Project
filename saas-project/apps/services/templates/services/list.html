@@ -60,7 +60,7 @@
               </div>
             </div>
           </td>
-          <td>{{ service.time|default:"—" }} мин</td>
+          <td>{{ service.duration|default:"—" }} мин</td>
           <td style="font-weight: var(--fw-semibold); color: var(--text-primary);">€ {{ service.price|default:"0" }}</td>
           <td>
             {% if service.is_active %}

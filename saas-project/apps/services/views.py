@@ -29,13 +29,21 @@ def create_service(request):
 
     if request.method == "POST":
         form = CreateServiceForm(request.POST)
-
         if form.is_valid():
             service = form.save(commit=False)
             service.company = company
-            service.slug = slugify(service.name)
+
+            base_slug = slugify(service.name)
+            slug = base_slug
+            counter = 1
+
+            while Service.objects.filter(company=company, slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            service.slug = slug
             service.save()
-            return redirect('services:list_services')
+            return redirect('services:list')
     else:
         form = CreateServiceForm()
     context = {'form': form}

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Онлайн-запись — {{ company_name|default:"Забронировать визит" }}</title>
+  <meta name="description" content="Онлайн-запись на услугу — выберите услугу, специалиста и удобное время">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <style>
+    /* ── Публичная страница бронирования: локальные дополнения ── */
+    body.public-booking {
+      background: var(--bg-app);
+      min-height: 100vh;
+    }
+
+    .public-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .public-header__logo {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-400));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .public-header__logo svg { width: 20px; height: 20px; color: white; }
+
+    .public-header__name {
+      font-size: var(--text-md);
+      font-weight: var(--fw-bold);
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .public-wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-5) var(--space-16);
+    }
+
+    .public-intro { text-align: center; margin-bottom: var(--space-8); }
+    .public-intro h1 {
+      font-size: var(--text-3xl);
+      margin-bottom: var(--space-2);
+    }
+    .public-intro p { color: var(--text-tertiary); font-size: var(--text-md); }
+
+    /* Steps indicator */
+    .steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-8);
+    }
+    .step-dot {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .step-dot__circle {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface-3);
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--fw-bold);
+      border: 2px solid transparent;
+      transition: all var(--transition);
+    }
+    .step-dot__label {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-weight: var(--fw-medium);
+      display: none;
+    }
+    @media (min-width: 640px) { .step-dot__label { display: inline; } }
+
+    .step-dot.active .step-dot__circle {
+      background: var(--brand-500);
+      color: white;
+    }
+    .step-dot.active .step-dot__label { color: var(--text-primary); }
+
+    .step-dot.done .step-dot__circle {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    .step-line {
+      width: 32px;
+      height: 2px;
+      background: var(--border);
+    }
+
+    /* Selectable option cards (service / employee) */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .option-card {
+      position: relative;
+      display: block;
+      cursor: pointer;
+    }
+
+    .option-card input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .option-card__body {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      padding: var(--space-4) var(--space-5);
+      transition: all var(--transition);
+      height: 100%;
+    }
+
+    .option-card:hover .option-card__body {
+      border-color: var(--brand-300);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .option-card input:checked + .option-card__body {
+      border-color: var(--brand-500);
+      background: var(--brand-50);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .option-card__title {
+      font-size: var(--text-sm);
+      font-weight: var(--fw-semibold);
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .option-card__meta {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+
+    .option-card__price {
+      margin-top: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: var(--fw-bold);
+      color: var(--brand-600);
+    }
+
+    .option-card--employee .option-card__body {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .option-card--any .option-card__body {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .option-card--any .table-avatar {
+      background: var(--bg-surface-3);
+      color: var(--text-tertiary);
+    }
+
+    /* Date & time picker */
+    .date-strip {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+      margin-bottom: var(--space-5);
+    }
+
+    .date-chip {
+      flex-shrink: 0;
+      min-width: 64px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      padding: var(--space-2) var(--space-1);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+    .date-chip__weekday {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+    }
+    .date-chip__num {
+      font-size: var(--text-lg);
+      font-weight: var(--fw-bold);
+      color: var(--text-primary);
+    }
+    .date-chip:hover { border-color: var(--brand-300); }
+    .date-chip.selected {
+      border-color: var(--brand-500);
+      background: var(--brand-500);
+    }
+    .date-chip.selected .date-chip__weekday,
+    .date-chip.selected .date-chip__num { color: white; }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap: var(--space-2);
+    }
+
+    .time-slot {
+      position: relative;
+      display: block;
+      cursor: pointer;
+    }
+    .time-slot input { position: absolute; opacity: 0; pointer-events: none; }
+    .time-slot__body {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      text-align: center;
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      font-weight: var(--fw-medium);
+      color: var(--text-secondary);
+      transition: all var(--transition);
+    }
+    .time-slot:hover .time-slot__body { border-color: var(--brand-300); }
+    .time-slot input:checked + .time-slot__body {
+      background: var(--brand-500);
+      border-color: var(--brand-500);
+      color: white;
+    }
+    .time-slot input:disabled + .time-slot__body {
+      opacity: 0.4;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    /* Summary sidebar-card (sticky on desktop) */
+    .booking-summary {
+      position: sticky;
+      top: var(--space-6);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+    }
+    .summary-row__label { color: var(--text-tertiary); }
+    .summary-row__value { color: var(--text-primary); font-weight: var(--fw-medium); text-align: right; }
+
+    .public-footer {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: var(--text-xs);
+      margin-top: var(--space-10);
+    }
+
+    .layout-2col {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--space-6);
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .layout-2col { grid-template-columns: 1fr; }
+      .booking-summary { position: static; }
+    }
+  </style>
+</head>
+<body class="public-booking">
+
+  <!-- Public Header -->
+  <header class="public-header">
+    <div class="public-header__logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <div class="public-header__name">{{ company_name|default:"Ваша компания" }}</div>
+  </header>
+
+  <div class="public-wrapper">
+
+    <div class="public-intro">
+      <h1>Онлайн-запись</h1>
+      <p>Выберите услугу, специалиста и удобное время визита</p>
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="steps">
+      <div class="step-dot active" data-step="1">
+        <div class="step-dot__circle">1</div>
+        <div class="step-dot__label">Услуга</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" data-step="2">
+        <div class="step-dot__circle">2</div>
+        <div class="step-dot__label">Специалист</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" data-step="3">
+        <div class="step-dot__circle">3</div>
+        <div class="step-dot__label">Дата и время</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-dot" data-step="4">
+        <div class="step-dot__circle">4</div>
+        <div class="step-dot__label">Контакты</div>
+      </div>
+    </div>
+
+    {% if error %}
+      <div class="alert alert--error mb-6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert--{{ message.tags|default:'info' }} mb-6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" id="booking-form" novalidate>
+      {% csrf_token %}
+
+      <div class="layout-2col">
+        <div>
+
+          <!-- ── Step 1: Service ───────────────────────────────── -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Выберите услугу</div>
+                <div class="card-subtitle">От этого зависит длительность и стоимость визита</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="option-grid" id="service-options">
+                {% for service in services %}
+                  <label class="option-card">
+                    <input type="radio" name="service" value="{{ service.id }}" data-employees="{{ service.employee_ids|default:'' }}" required {% if forloop.first %}checked{% endif %}>
+                    <div class="option-card__body">
+                      <div class="option-card__title">{{ service.name }}</div>
+                      <div class="option-card__meta">{{ service.duration_minutes }} мин</div>
+                      <div class="option-card__price">{{ service.price }} ₽</div>
+                    </div>
+                  </label>
+                {% empty %}
+                  <p class="text-tertiary text-sm">Услуги пока не добавлены.</p>
+                {% endfor %}
+              </div>
+              {% if form.service.errors %}
+                <div class="form-error mt-4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ form.service.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- ── Step 2: Employee ──────────────────────────────── -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Выберите специалиста</div>
+                <div class="card-subtitle">Или доверьтесь любому доступному мастеру</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="option-grid" id="employee-options">
+                <label class="option-card option-card--any">
+                  <input type="radio" name="employee" value="" checked>
+                  <div class="option-card__body">
+                    <div class="table-avatar">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                    </div>
+                    <div>
+                      <div class="option-card__title">Без разницы</div>
+                      <div class="option-card__meta">Любой свободный специалист</div>
+                    </div>
+                  </div>
+                </label>
+                {% for employee in employees %}
+                  <label class="option-card option-card--employee" data-employee-id="{{ employee.id }}">
+                    <input type="radio" name="employee" value="{{ employee.id }}">
+                    <div class="option-card__body">
+                      <div class="table-avatar">
+                        {% if employee.avatar %}
+                          <img src="{{ employee.avatar.url }}" alt="">
+                        {% else %}
+                          {{ employee.first_name|slice:":1" }}{{ employee.last_name|slice:":1" }}
+                        {% endif %}
+                      </div>
+                      <div>
+                        <div class="option-card__title">{{ employee.first_name }} {{ employee.last_name }}</div>
+                        <div class="option-card__meta">{{ employee.role|default:"Специалист" }}</div>
+                      </div>
+                    </div>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Step 3: Date & Time ───────────────────────────── -->
+          <div class="card mb-6">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Дата и время</div>
+                <div class="card-subtitle">Свободные слоты на ближайшие дни</div>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <div class="date-strip" id="date-strip" data-slots-url="{% url 'bookings:get_slots' company.slug %}">
+                {% for day in available_days %}
+                  <button type="button" class="date-chip {% if forloop.first %}selected{% endif %}" data-date="{{ day.date|date:'Y-m-d' }}">
+                    <div class="date-chip__weekday">{{ day.date|date:"D" }}</div>
+                    <div class="date-chip__num">{{ day.date|date:"d" }}</div>
+                  </button>
+                {% endfor %}
+              </div>
+
+              <div class="time-grid" id="time-grid">
+                {% for slot in available_slots %}
+                  <label class="time-slot">
+                    <input type="radio" name="start_time" value="{{ slot.iso }}" {% if slot.disabled %}disabled{% endif %} required>
+                    <div class="time-slot__body">{{ slot.label }}</div>
+                  </label>
+                {% empty %}
+                  <p class="text-tertiary text-sm">Выберите дату, чтобы увидеть свободное время.</p>
+                {% endfor %}
+              </div>
+
+              {% if form.start_time.errors %}
+                <div class="form-error mt-4">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ form.start_time.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- ── Step 4: Contact details ───────────────────────── -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Ваши данные</div>
+                <div class="card-subtitle">Чтобы мы могли подтвердить запись</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-section">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.first_name.id_for_label }}">Имя</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                      <div class="form-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {{ form.first_name.errors.0 }}
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.last_name.id_for_label }}">Фамилия</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                      <div class="form-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {{ form.last_name.errors.0 }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.phone.id_for_label }}">Телефон</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                      <div class="form-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {{ form.phone.errors.0 }}
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label form-label-required" for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                      <div class="form-error">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {{ form.email.errors.0 }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <label class="form-check">
+                  <input type="checkbox" name="agree" required>
+                  <span class="form-check__label">Я согласен на обработку персональных данных и правила отмены записи</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="card-footer flex justify-end">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Подтвердить запись
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Summary sidebar ──────────────────────────────────── -->
+        <div class="booking-summary">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Ваша запись</div>
+            </div>
+            <div class="card-body">
+              <div class="summary-row">
+                <span class="summary-row__label">Услуга</span>
+                <span class="summary-row__value" id="summary-service">—</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row__label">Специалист</span>
+                <span class="summary-row__value" id="summary-employee">Любой</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row__label">Дата</span>
+                <span class="summary-row__value" id="summary-date">—</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-row__label">Время</span>
+                <span class="summary-row__value" id="summary-time">—</span>
+              </div>
+              <div class="divider"></div>
+              <div class="summary-row">
+                <span class="summary-row__label font-semibold text-primary">Итого</span>
+                <span class="summary-row__value" id="summary-price" style="font-size: var(--text-lg); color: var(--brand-600);">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+    <div class="public-footer">
+      Возникли вопросы? Свяжитесь с нами: {{ company_phone|default:"" }} {{ company_email|default:"" }}
+    </div>
+
+  </div>
+
+  <script>
+    // ── Живое обновление сводки, шагов и AJAX-подгрузка времени без перезагрузки ──
+    (function () {
+      const form = document.getElementById('booking-form');
+      const dateStrip = document.getElementById('date-strip');
+      const timeGrid = document.getElementById('time-grid');
+      const slotsUrl = dateStrip.dataset.slotsUrl;
+
+      const summaryService  = document.getElementById('summary-service');
+      const summaryEmployee = document.getElementById('summary-employee');
+      const summaryDate     = document.getElementById('summary-date');
+      const summaryTime     = document.getElementById('summary-time');
+      const summaryPrice    = document.getElementById('summary-price');
+
+      function updateStepDots() {
+        const serviceChosen  = form.querySelector('input[name="service"]:checked');
+        const dateChosen     = document.querySelector('.date-chip.selected');
+        const timeChosen     = form.querySelector('input[name="start_time"]:checked');
+        const contactsFilled = form.querySelector('[name="first_name"]')?.value && form.querySelector('[name="phone"]')?.value;
+
+        const steps = document.querySelectorAll('.step-dot');
+        steps.forEach(s => s.classList.remove('active', 'done'));
+        if (serviceChosen) steps[0].classList.add('done'); else steps[0].classList.add('active');
+        if (serviceChosen && !dateChosen) steps[1].classList.add('active');
+        if (dateChosen) steps[1].classList.add('done');
+        if (dateChosen && !timeChosen) steps[2].classList.add('active');
+        if (timeChosen) steps[2].classList.add('done');
+        if (timeChosen && !contactsFilled) steps[3].classList.add('active');
+        if (contactsFilled) steps[3].classList.add('done');
+      }
+
+      function updateSummary() {
+        const serviceInput = form.querySelector('input[name="service"]:checked');
+        if (serviceInput) {
+          const card = serviceInput.closest('.option-card');
+          summaryService.textContent = card.querySelector('.option-card__title')?.textContent || '—';
+          summaryPrice.textContent = card.querySelector('.option-card__price')?.textContent || '—';
+        }
+
+        const employeeInput = form.querySelector('input[name="employee"]:checked');
+        if (employeeInput) {
+          summaryEmployee.textContent = employeeInput.value === ''
+            ? 'Любой'
+            : employeeInput.closest('.option-card').querySelector('.option-card__title')?.textContent || '—';
+        }
+
+        const dateChip = document.querySelector('.date-chip.selected');
+        summaryDate.textContent = dateChip ? dateChip.dataset.date : '—';
+
+        const timeInput = form.querySelector('input[name="start_time"]:checked');
+        summaryTime.textContent = timeInput
+          ? timeInput.closest('.time-slot').querySelector('.time-slot__body').textContent
+          : '—';
+
+        updateStepDots();
+      }
+
+      // Фильтрация мастеров по выбранной услуге (data-employees="1,2,3" на input услуги)
+      function filterEmployeesByService() {
+        const serviceInput = form.querySelector('input[name="service"]:checked');
+        if (!serviceInput) return;
+        const allowed = (serviceInput.dataset.employees || '').split(',').map(s => s.trim()).filter(Boolean);
+        document.querySelectorAll('#employee-options .option-card--employee').forEach(card => {
+          if (allowed.length === 0 || allowed.includes(card.dataset.employeeId)) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+            const input = card.querySelector('input');
+            if (input.checked) {
+              form.querySelector('input[name="employee"][value=""]').checked = true;
+            }
+          }
+        });
+      }
+
+      function renderSlots(slots) {
+        if (!slots.length) {
+          timeGrid.innerHTML = '<p class="text-tertiary text-sm">На эту дату нет свободного времени.</p>';
+          return;
+        }
+        timeGrid.innerHTML = slots.map(slot => `
+          <label class="time-slot">
+            <input type="radio" name="start_time" value="${slot.iso}" ${slot.disabled ? 'disabled' : ''} required>
+            <div class="time-slot__body">${slot.label}</div>
+          </label>
+        `).join('');
+      }
+
+      // Подгружает слоты через AJAX без перезагрузки страницы
+      async function loadSlots() {
+        const dateChip = document.querySelector('.date-chip.selected');
+        if (!dateChip) return;
+
+        const serviceInput = form.querySelector('input[name="service"]:checked');
+        const employeeInput = form.querySelector('input[name="employee"]:checked');
+        const params = new URLSearchParams({
+          date: dateChip.dataset.date,
+          service: serviceInput ? serviceInput.value : '',
+          employee: employeeInput ? employeeInput.value : '',
+        });
+
+        timeGrid.innerHTML = '<p class="text-tertiary text-sm">Загружаем свободное время…</p>';
+
+        try {
+          const res = await fetch(`${slotsUrl}?${params.toString()}`);
+          const data = await res.json();
+          renderSlots(data.slots);
+        } catch (e) {
+          timeGrid.innerHTML = '<p class="text-tertiary text-sm">Не удалось загрузить время. Попробуйте снова.</p>';
+        }
+        updateSummary();
+      }
+
+      // Клик по дате: только визуально переключаем выделение + AJAX-запрос
+      dateStrip.addEventListener('click', (e) => {
+        const chip = e.target.closest('.date-chip');
+        if (!chip) return;
+        document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        loadSlots();
+      });
+
+      form.addEventListener('change', (e) => {
+        filterEmployeesByService();
+        updateSummary();
+        // Смена услуги или специалиста тоже пересчитывает время на уже выбранную дату
+        if (e.target.name === 'service' || e.target.name === 'employee') {
+          loadSlots();
+        }
+      });
+      form.addEventListener('input', updateSummary);
+
+      filterEmployeesByService();
+      loadSlots(); // подгружаем слоты для даты, выбранной по умолчанию
+    })();
+  </script>
+
+</body>
+</html>

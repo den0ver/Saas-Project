@@ -7,7 +7,7 @@ class Service(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    time = models.PositiveIntegerField(default=60)
+    duration = models.PositiveIntegerField(default=60)
     description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     
